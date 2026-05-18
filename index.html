@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkflowForge - Natural Language to Deterministic Workflows | Round Treasury</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --indigo: #6366f1;
+            --indigo-glow: rgba(99, 102, 241, 0.4);
+            --electric: #3b82f6;
+            --cyan: #06b6d4;
+            --violet: #8b5cf6;
+            --amber: #f59e0b;
+            --emerald: #10b981;
+            --rose: #f43f5e;
+            --bg-dark: #07081a;
+            --bg-card: #0f1230;
+            --bg-elevated: #1a1d44;
+            --bg-deeper: #050616;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2a2f5a;
+            --border-bright: #3a3f70;
+            --forge-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 50%, #06b6d4 100%);
+            --forge-gradient-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.08));
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(6, 182, 212, 0.10) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+            background-attachment: fixed;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(24px);
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--forge-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: var(--forge-gradient);
+            border-radius: 15px;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(10px);
+        }
+
+        .logo-text {
+            font-size: 1.55rem;
+            font-weight: 800;
+            background: var(--forge-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 500;
+        }
+
+        .header-badges {
+            display: flex;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        .badge.live {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--emerald);
+            color: var(--emerald);
+        }
+
+        .badge.live::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--emerald);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 8px transparent; }
+        }
+
+        .main {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+        }
+
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--forge-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            line-height: 1.15;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .hero-meta {
+            display: inline-flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .hero-meta span strong { color: var(--indigo); }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 1300px) {
+            .workspace { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(26, 29, 68, 0.5) 0%, transparent 100%);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body { padding: 1.25rem; }
+
+        /* Prompt input area */
+        .prompt-section {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .prompt-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+        }
+
+        .prompt-input {
+            width: 100%;
+            background: var(--bg-deeper);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.9rem 1.1rem;
+            color: var(--text-primary);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 75px;
+            transition: all 0.2s;
+        }
+
+        .prompt-input:focus {
+            outline: none;
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .prompt-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 0.75rem;
+        }
+
+        .chip {
+            background: var(--bg-deeper);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .chip:hover {
+            border-color: var(--indigo);
+            background: rgba(99, 102, 241, 0.12);
+            color: var(--indigo);
+        }
+
+        .generate-btn {
+            width: 100%;
+            margin-top: 0.85rem;
+            padding: 0.95rem;
+            background: var(--forge-gradient);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.2), transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .generate-btn:hover::before { transform: translateX(100%); }
+
+        .generate-btn:hover {
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* DAG Canvas */
+        .dag-canvas {
+            background: var(--bg-deeper);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dag-canvas::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.15) 1px, transparent 0);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+
+        .dag-empty {
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dag-empty-icon {
+            font-size: 3rem;
+            margin-bottom: 0.8rem;
+            opacity: 0.5;
+        }
+
+        .dag-empty p { font-size: 0.85rem; }
+
+        #dagSvg {
+            width: 100%;
+            height: 380px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dag-node {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dag-node rect {
+            transition: all 0.3s;
+        }
+
+        .dag-node.running rect {
+            stroke: var(--cyan);
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7));
+        }
+
+        .dag-node.done rect {
+            stroke: var(--emerald);
+            stroke-width: 2;
+            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));
+        }
+
+        .dag-node.exception rect {
+            stroke: var(--amber);
+            stroke-width: 2;
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+        }
+
+        .dag-edge {
+            stroke: var(--border-bright);
+            stroke-width: 2;
+            fill: none;
+            transition: stroke 0.3s;
+        }
+
+        .dag-edge.active {
+            stroke: var(--cyan);
+            stroke-width: 2.5;
+            stroke-dasharray: 6 4;
+            animation: edgeFlow 1.5s linear infinite;
+            filter: drop-shadow(0 0 6px var(--cyan));
+        }
+
+        @keyframes edgeFlow {
+            to { stroke-dashoffset: -20; }
+        }
+
+        /* Approval & execution panel */
+        .execution-panel {
+            margin-top: 1rem;
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 1rem;
+            display: none;
+        }
+
+        .execution-panel.show { display: block; animation: slideUp 0.4s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .exec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.85rem;
+        }
+
+        .exec-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .exec-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 5px;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--amber);
+            border: 1px solid var(--amber);
+        }
+
+        .exec-status.running {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        .exec-status.done {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+            border-color: var(--emerald);
+        }
+
+        .exec-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .exec-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-deeper);
+            color: var(--text-primary);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .exec-btn.approve {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--emerald);
+            color: var(--emerald);
+        }
+
+        .exec-btn.approve:hover {
+            background: var(--emerald);
+            color: white;
+        }
+
+        .exec-btn.reject:hover {
+            border-color: var(--rose);
+            color: var(--rose);
+        }
+
+        .exec-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .exec-spec {
+            background: var(--bg-deeper);
+            border-radius: 8px;
+            padding: 0.85rem;
+            margin-top: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            border-left: 3px solid var(--indigo);
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .exec-spec .key { color: var(--cyan); }
+        .exec-spec .val { color: var(--emerald); }
+        .exec-spec .str { color: var(--amber); }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Stat cards */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+        }
+
+        .stat-card {
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            padding: 0.85rem;
+            border-left: 3px solid var(--indigo);
+        }
+
+        .stat-card.cyan { border-left-color: var(--cyan); }
+        .stat-card.emerald { border-left-color: var(--emerald); }
+        .stat-card.amber { border-left-color: var(--amber); }
+
+        .stat-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--indigo);
+            line-height: 1.1;
+        }
+
+        .stat-card.cyan .stat-value { color: var(--cyan); }
+        .stat-card.emerald .stat-value { color: var(--emerald); }
+        .stat-card.amber .stat-value { color: var(--amber); }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* Templates */
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .template-item {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .template-item:hover {
+            border-color: var(--indigo);
+            background: rgba(99, 102, 241, 0.08);
+            transform: translateX(2px);
+        }
+
+        .template-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .template-icon.cyan { background: rgba(6, 182, 212, 0.15); }
+        .template-icon.amber { background: rgba(245, 158, 11, 0.15); }
+        .template-icon.emerald { background: rgba(16, 185, 129, 0.15); }
+        .template-icon.violet { background: rgba(139, 92, 246, 0.15); }
+
+        .template-content { flex: 1; min-width: 0; }
+
+        .template-name {
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+
+        .template-meta {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Audit Log */
+        .audit-log {
+            max-height: 320px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .audit-entry {
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            border-left: 2px solid var(--indigo);
+            animation: slideIn 0.3s ease;
+            font-size: 0.72rem;
+        }
+
+        .audit-entry.cyan { border-left-color: var(--cyan); }
+        .audit-entry.emerald { border-left-color: var(--emerald); }
+        .audit-entry.amber { border-left-color: var(--amber); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-6px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .audit-msg {
+            color: var(--text-primary);
+            margin-bottom: 0.15rem;
+        }
+
+        .audit-meta {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+        }
+
+        /* Node legend */
+        .legend {
+            display: flex;
+            gap: 0.6rem;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .legend-dot.action { background: var(--indigo); }
+        .legend-dot.decision { background: var(--amber); }
+        .legend-dot.approval { background: var(--violet); }
+        .legend-dot.execute { background: var(--emerald); }
+
+        /* Processing overlay */
+        .processing-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 8, 26, 0.97);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .processing-overlay.active { display: flex; }
+
+        .forge-animation {
+            width: 130px;
+            height: 130px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 2rem;
+        }
+
+        .forge-node {
+            background: var(--indigo);
+            border-radius: 4px;
+            animation: nodePulse 1.6s ease-in-out infinite;
+        }
+
+        .forge-node:nth-child(2) { background: var(--electric); animation-delay: 0.08s; }
+        .forge-node:nth-child(3) { background: var(--cyan); animation-delay: 0.16s; }
+        .forge-node:nth-child(4) { background: var(--violet); animation-delay: 0.24s; }
+        .forge-node:nth-child(5) { animation-delay: 0.32s; }
+        .forge-node:nth-child(6) { background: var(--electric); animation-delay: 0.4s; }
+        .forge-node:nth-child(7) { background: var(--cyan); animation-delay: 0.48s; }
+        .forge-node:nth-child(8) { background: var(--violet); animation-delay: 0.56s; }
+        .forge-node:nth-child(9) { animation-delay: 0.64s; }
+        .forge-node:nth-child(10) { background: var(--electric); animation-delay: 0.72s; }
+        .forge-node:nth-child(11) { background: var(--cyan); animation-delay: 0.8s; }
+        .forge-node:nth-child(12) { background: var(--violet); animation-delay: 0.88s; }
+        .forge-node:nth-child(13) { animation-delay: 0.96s; }
+        .forge-node:nth-child(14) { background: var(--electric); animation-delay: 1.04s; }
+        .forge-node:nth-child(15) { background: var(--cyan); animation-delay: 1.12s; }
+        .forge-node:nth-child(16) { background: var(--violet); animation-delay: 1.2s; }
+
+        @keyframes nodePulse {
+            0%, 100% { opacity: 0.25; transform: scale(0.85); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .processing-text {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .processing-stage {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .processing-progress {
+            width: 300px;
+            height: 5px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .processing-bar {
+            height: 100%;
+            background: var(--forge-gradient);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.85rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.7);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            max-width: 380px;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        .toast-icon { font-size: 1.3rem; }
+        .toast-title { font-size: 0.85rem; font-weight: 600; }
+        .toast-message { font-size: 0.7rem; color: var(--text-muted); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deeper); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">⚒️</div>
+                <div>
+                    <div class="logo-text">WorkflowForge</div>
+                    <div class="logo-subtitle">Round Treasury · Agentic Workflow Builder</div>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="badge live">● Production</span>
+                <span class="badge">Temporal-Native</span>
+                <span class="badge">Deterministic</span>
+                <span class="badge">ISO 27001:2022</span>
+                <span class="badge">$500M+ Processed</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="hero">
+            <h1>Plain English → Production Workflow</h1>
+            <p>Describe what you want automated. WorkflowForge generates a deterministic Temporal workflow that runs 24/7 and only pings you on exceptions.</p>
+            <div class="hero-meta">
+                <span><strong>•</strong> 4-step parse pipeline</span>
+                <span><strong>•</strong> Compiled to Temporal DSL</span>
+                <span><strong>•</strong> Full audit trail (FCA-grade)</span>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🧠 Workflow Composer</h3>
+                    <div class="legend">
+                        <div class="legend-item"><span class="legend-dot action"></span>Action</div>
+                        <div class="legend-item"><span class="legend-dot decision"></span>Decision</div>
+                        <div class="legend-item"><span class="legend-dot approval"></span>Approval</div>
+                        <div class="legend-item"><span class="legend-dot execute"></span>Execute</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="prompt-section">
+                        <div class="prompt-label">Describe your workflow</div>
+                        <textarea class="prompt-input" id="promptInput" placeholder="e.g. Sweep idle cash above £100k into BlackRock MMF every Friday at 4pm, but only if no payroll run is scheduled in the next 3 business days. Notify CFO on Slack when sweep completes."></textarea>
+                        <div class="prompt-chips">
+                            <div class="chip" onclick="loadPrompt(0)">💰 Sweep idle cash to MMF</div>
+                            <div class="chip" onclick="loadPrompt(1)">📅 Fund payroll 3 days early</div>
+                            <div class="chip" onclick="loadPrompt(2)">📨 Chase missing invoices</div>
+                            <div class="chip" onclick="loadPrompt(3)">💱 FX hedge USD exposure</div>
+                            <div class="chip" onclick="loadPrompt(4)">🔄 Vendor payment batch</div>
+                        </div>
+                        <button class="generate-btn" id="generateBtn" onclick="generateWorkflow()">
+                            ⚡ Generate Workflow
+                        </button>
+                    </div>
+
+                    <div class="dag-canvas" id="dagCanvas">
+                        <div class="dag-empty" id="dagEmpty">
+                            <div class="dag-empty-icon">⚒️</div>
+                            <p>Your generated workflow DAG will appear here</p>
+                            <p style="font-size:0.7rem; opacity:0.7; margin-top:0.4rem;">Pick a template above, or describe your own</p>
+                        </div>
+                        <svg id="dagSvg" viewBox="0 0 800 380" style="display:none;"></svg>
+                    </div>
+
+                    <div class="execution-panel" id="executionPanel">
+                        <div class="exec-header">
+                            <span class="exec-title" id="execTitle">Workflow Generated — Awaiting Approval</span>
+                            <span class="exec-status" id="execStatus">PENDING APPROVAL</span>
+                        </div>
+                        <div class="exec-buttons">
+                            <button class="exec-btn approve" id="approveBtn" onclick="approveWorkflow()">
+                                ✓ Approve &amp; Execute
+                            </button>
+                            <button class="exec-btn reject" id="rejectBtn" onclick="rejectWorkflow()">
+                                ✕ Reject
+                            </button>
+                        </div>
+                        <div class="exec-spec" id="execSpec"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📊 Forge Stats</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="workflowsRunning">12</div>
+                                <div class="stat-label">Running 24/7</div>
+                            </div>
+                            <div class="stat-card cyan">
+                                <div class="stat-value" id="actionsToday">1,847</div>
+                                <div class="stat-label">Actions / 24h</div>
+                            </div>
+                            <div class="stat-card emerald">
+                                <div class="stat-value">£4.2M</div>
+                                <div class="stat-label">Moved (week)</div>
+                            </div>
+                            <div class="stat-card amber">
+                                <div class="stat-value" id="exceptionsToday">3</div>
+                                <div class="stat-label">Exceptions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📚 Workflow Library</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="template-list">
+                            <div class="template-item" onclick="loadPrompt(0)">
+                                <div class="template-icon">💰</div>
+                                <div class="template-content">
+                                    <div class="template-name">Treasury Sweep</div>
+                                    <div class="template-meta">Used by Cleo · 14 runs/wk</div>
+                                </div>
+                            </div>
+                            <div class="template-item" onclick="loadPrompt(1)">
+                                <div class="template-icon cyan">📅</div>
+                                <div class="template-content">
+                                    <div class="template-name">Payroll Pre-Fund</div>
+                                    <div class="template-meta">Used by PostHog · monthly</div>
+                                </div>
+                            </div>
+                            <div class="template-item" onclick="loadPrompt(2)">
+                                <div class="template-icon amber">📨</div>
+                                <div class="template-content">
+                                    <div class="template-name">Invoice Chaser</div>
+                                    <div class="template-meta">42 vendors · daily</div>
+                                </div>
+                            </div>
+                            <div class="template-item" onclick="loadPrompt(3)">
+                                <div class="template-icon violet">💱</div>
+                                <div class="template-content">
+                                    <div class="template-name">FX Hedge Trigger</div>
+                                    <div class="template-meta">Threshold-based</div>
+                                </div>
+                            </div>
+                            <div class="template-item" onclick="loadPrompt(4)">
+                                <div class="template-icon emerald">🔄</div>
+                                <div class="template-content">
+                                    <div class="template-name">Vendor Batch Payment</div>
+                                    <div class="template-meta">Weekly · 28 vendors</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 Audit Trail</h3>
+                        <span style="font-size: 0.65rem; color: var(--text-muted); font-family: 'JetBrains Mono';" id="auditCount">— events</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="audit-log" id="auditLog">
+                            <div style="color: var(--text-muted); font-size: 0.78rem; text-align: center; padding: 1rem;">
+                                Generate a workflow to see audit events
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="forge-animation">
+            <div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div>
+            <div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div>
+            <div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div>
+            <div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div><div class="forge-node"></div>
+        </div>
+        <div class="processing-text">Compiling Workflow...</div>
+        <div class="processing-stage" id="processingStage">Parsing natural language...</div>
+        <div class="processing-progress">
+            <div class="processing-bar" id="processingBar"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-icon">✅</span>
+        <div>
+            <div class="toast-title" id="toastTitle">Success</div>
+            <div class="toast-message" id="toastMessage">Done</div>
+        </div>
+    </div>
+
+    <script>
+        const TEMPLATES = [
+            {
+                prompt: "Sweep idle cash above £100k into BlackRock MMF every Friday at 4pm, but only if no payroll run is scheduled in the next 3 business days. Notify CFO on Slack when sweep completes.",
+                name: "treasury_sweep",
+                nodes: [
+                    {id: 'trigger', label: 'Cron: Fri 16:00', type: 'action', x: 60, y: 180},
+                    {id: 'check', label: 'Fetch balances', type: 'action', x: 200, y: 180},
+                    {id: 'decide', label: 'Balance > £100k?', type: 'decision', x: 340, y: 180},
+                    {id: 'payroll', label: 'Payroll in 3d?', type: 'decision', x: 480, y: 180},
+                    {id: 'sweep', label: 'Sweep to MMF', type: 'execute', x: 620, y: 130},
+                    {id: 'notify', label: 'Slack CFO', type: 'execute', x: 620, y: 230},
+                ],
+                edges: [
+                    ['trigger', 'check'], ['check', 'decide'], ['decide', 'payroll'],
+                    ['payroll', 'sweep'], ['sweep', 'notify']
+                ],
+                spec: `{
+  <span class="key">"workflow"</span>: <span class="str">"treasury_sweep"</span>,
+  <span class="key">"trigger"</span>: { <span class="key">"cron"</span>: <span class="str">"0 16 * * 5"</span>, <span class="key">"tz"</span>: <span class="str">"Europe/London"</span> },
+  <span class="key">"steps"</span>: [
+    { <span class="key">"id"</span>: <span class="str">"fetch_balances"</span>, <span class="key">"activity"</span>: <span class="str">"banks.aggregate"</span>, <span class="key">"timeout"</span>: <span class="val">30</span> },
+    { <span class="key">"id"</span>: <span class="str">"check_threshold"</span>, <span class="key">"condition"</span>: <span class="str">"balance > 100000"</span> },
+    { <span class="key">"id"</span>: <span class="str">"check_payroll"</span>, <span class="key">"condition"</span>: <span class="str">"!payroll_in_window(3, 'business')"</span> },
+    { <span class="key">"id"</span>: <span class="str">"sweep"</span>, <span class="key">"activity"</span>: <span class="str">"insignis.deposit"</span>, <span class="key">"amount"</span>: <span class="str">"balance - 100000"</span> },
+    { <span class="key">"id"</span>: <span class="str">"notify_cfo"</span>, <span class="key">"activity"</span>: <span class="str">"slack.dm"</span>, <span class="key">"target"</span>: <span class="str">"@cfo"</span> }
+  ],
+  <span class="key">"retry"</span>: { <span class="key">"max"</span>: <span class="val">3</span>, <span class="key">"backoff"</span>: <span class="str">"exponential"</span> },
+  <span class="key">"audit"</span>: <span class="val">true</span>
+}`
+            },
+            {
+                prompt: "Fund the payroll account 3 business days before each payroll run. Pull funds from highest-yield MMF first. Require CFO approval if total > £250k.",
+                name: "payroll_prefund",
+                nodes: [
+                    {id: 'trigger', label: 'Payroll T-3d', type: 'action', x: 60, y: 180},
+                    {id: 'calc', label: 'Calc payroll total', type: 'action', x: 200, y: 180},
+                    {id: 'gate', label: 'Total > £250k?', type: 'decision', x: 340, y: 180},
+                    {id: 'approve', label: 'CFO Approval', type: 'approval', x: 480, y: 180},
+                    {id: 'pull', label: 'Pull from MMF', type: 'execute', x: 620, y: 130},
+                    {id: 'fund', label: 'Fund Payroll Acct', type: 'execute', x: 620, y: 230},
+                ],
+                edges: [
+                    ['trigger', 'calc'], ['calc', 'gate'], ['gate', 'approve'],
+                    ['approve', 'pull'], ['pull', 'fund']
+                ],
+                spec: `{
+  <span class="key">"workflow"</span>: <span class="str">"payroll_prefund"</span>,
+  <span class="key">"trigger"</span>: { <span class="key">"relative"</span>: <span class="str">"payroll_date - 3 business_days"</span> },
+  <span class="key">"steps"</span>: [
+    { <span class="key">"id"</span>: <span class="str">"calc_total"</span>, <span class="key">"activity"</span>: <span class="str">"payroll.estimate"</span> },
+    { <span class="key">"id"</span>: <span class="str">"approval_gate"</span>, <span class="key">"if"</span>: <span class="str">"total > 250000"</span>, <span class="key">"approver"</span>: <span class="str">"role:CFO"</span> },
+    { <span class="key">"id"</span>: <span class="str">"pull_mmf"</span>, <span class="key">"activity"</span>: <span class="str">"insignis.withdraw"</span>, <span class="key">"strategy"</span>: <span class="str">"highest_yield_first"</span> },
+    { <span class="key">"id"</span>: <span class="str">"fund_payroll"</span>, <span class="key">"activity"</span>: <span class="str">"banks.transfer"</span> }
+  ],
+  <span class="key">"sla"</span>: { <span class="key">"max_duration"</span>: <span class="str">"4h"</span> }
+}`
+            },
+            {
+                prompt: "Every Tuesday, check for invoices overdue by more than 7 days. Send a polite chase email. After 14 days overdue, escalate to AP manager.",
+                name: "invoice_chaser",
+                nodes: [
+                    {id: 'trigger', label: 'Cron: Tue 09:00', type: 'action', x: 60, y: 180},
+                    {id: 'fetch', label: 'Fetch overdue', type: 'action', x: 200, y: 180},
+                    {id: 'split', label: 'Days overdue?', type: 'decision', x: 340, y: 180},
+                    {id: 'chase', label: 'Send chase email', type: 'execute', x: 480, y: 120},
+                    {id: 'escalate', label: 'Escalate to AP', type: 'execute', x: 480, y: 240},
+                    {id: 'log', label: 'Log to dbt', type: 'execute', x: 640, y: 180},
+                ],
+                edges: [
+                    ['trigger', 'fetch'], ['fetch', 'split'], ['split', 'chase'],
+                    ['split', 'escalate'], ['chase', 'log'], ['escalate', 'log']
+                ],
+                spec: `{
+  <span class="key">"workflow"</span>: <span class="str">"invoice_chaser"</span>,
+  <span class="key">"trigger"</span>: { <span class="key">"cron"</span>: <span class="str">"0 9 * * 2"</span> },
+  <span class="key">"branches"</span>: [
+    { <span class="key">"when"</span>: <span class="str">"7 <= days_overdue < 14"</span>, <span class="key">"do"</span>: <span class="str">"email.chase_polite"</span> },
+    { <span class="key">"when"</span>: <span class="str">"days_overdue >= 14"</span>, <span class="key">"do"</span>: <span class="str">"slack.alert(@ap-manager)"</span> }
+  ],
+  <span class="key">"sink"</span>: <span class="str">"warehouse.invoice_events"</span>
+}`
+            },
+            {
+                prompt: "Monitor USD payable exposure. When USD position exceeds $500k, automatically open a 30-day FX forward to hedge at current rate + 0.3% buffer.",
+                name: "fx_hedge",
+                nodes: [
+                    {id: 'monitor', label: 'Monitor USD exposure', type: 'action', x: 60, y: 180},
+                    {id: 'check', label: 'Exposure > $500k?', type: 'decision', x: 220, y: 180},
+                    {id: 'rate', label: 'Quote forward rate', type: 'action', x: 380, y: 180},
+                    {id: 'approve', label: 'Treasurer approval', type: 'approval', x: 540, y: 180},
+                    {id: 'execute', label: 'Execute forward', type: 'execute', x: 700, y: 180},
+                ],
+                edges: [
+                    ['monitor', 'check'], ['check', 'rate'], ['rate', 'approve'], ['approve', 'execute']
+                ],
+                spec: `{
+  <span class="key">"workflow"</span>: <span class="str">"fx_hedge_usd"</span>,
+  <span class="key">"trigger"</span>: { <span class="key">"event"</span>: <span class="str">"position.changed"</span>, <span class="key">"poll"</span>: <span class="str">"15m"</span> },
+  <span class="key">"steps"</span>: [
+    { <span class="key">"id"</span>: <span class="str">"check_exposure"</span>, <span class="key">"condition"</span>: <span class="str">"usd_payable > 500000"</span> },
+    { <span class="key">"id"</span>: <span class="str">"quote_forward"</span>, <span class="key">"activity"</span>: <span class="str">"fx.quote_30d"</span> },
+    { <span class="key">"id"</span>: <span class="str">"approval"</span>, <span class="key">"approver"</span>: <span class="str">"role:Treasurer"</span>, <span class="key">"sla"</span>: <span class="str">"2h"</span> },
+    { <span class="key">"id"</span>: <span class="str">"book"</span>, <span class="key">"activity"</span>: <span class="str">"fx.book_forward"</span>, <span class="key">"buffer"</span>: <span class="val">0.003</span> }
+  ]
+}`
+            },
+            {
+                prompt: "Every Wednesday, batch all approved vendor invoices into a single SEPA Faster Payments file. Validate IBANs, check treasury balance, execute on approval.",
+                name: "vendor_batch",
+                nodes: [
+                    {id: 'trigger', label: 'Cron: Wed 10:00', type: 'action', x: 60, y: 180},
+                    {id: 'pull', label: 'Pull approved AP', type: 'action', x: 200, y: 180},
+                    {id: 'validate', label: 'Validate IBANs', type: 'decision', x: 340, y: 180},
+                    {id: 'balance', label: 'Check treasury', type: 'decision', x: 480, y: 180},
+                    {id: 'approval', label: 'Sign-off', type: 'approval', x: 620, y: 130},
+                    {id: 'execute', label: 'SEPA batch', type: 'execute', x: 620, y: 230},
+                ],
+                edges: [
+                    ['trigger', 'pull'], ['pull', 'validate'], ['validate', 'balance'],
+                    ['balance', 'approval'], ['approval', 'execute']
+                ],
+                spec: `{
+  <span class="key">"workflow"</span>: <span class="str">"vendor_batch_pay"</span>,
+  <span class="key">"trigger"</span>: { <span class="key">"cron"</span>: <span class="str">"0 10 * * 3"</span> },
+  <span class="key">"steps"</span>: [
+    { <span class="key">"id"</span>: <span class="str">"pull_invoices"</span>, <span class="key">"source"</span>: <span class="str">"erp.ap_approved"</span> },
+    { <span class="key">"id"</span>: <span class="str">"validate_iban"</span>, <span class="key">"activity"</span>: <span class="str">"swift.validate"</span>, <span class="key">"on_fail"</span>: <span class="str">"flag_exception"</span> },
+    { <span class="key">"id"</span>: <span class="str">"check_balance"</span>, <span class="key">"condition"</span>: <span class="str">"treasury >= sum(amounts)"</span> },
+    { <span class="key">"id"</span>: <span class="str">"approval"</span>, <span class="key">"approver"</span>: <span class="str">"role:Head_of_Finance"</span> },
+    { <span class="key">"id"</span>: <span class="str">"execute_batch"</span>, <span class="key">"activity"</span>: <span class="str">"payments.sepa_batch"</span> }
+  ]
+}`
+            }
+        ];
+
+        const COLOR_MAP = {
+            action: { fill: 'rgba(99, 102, 241, 0.15)', stroke: '#6366f1', text: '#a5b4fc' },
+            decision: { fill: 'rgba(245, 158, 11, 0.15)', stroke: '#f59e0b', text: '#fcd34d' },
+            approval: { fill: 'rgba(139, 92, 246, 0.15)', stroke: '#8b5cf6', text: '#c4b5fd' },
+            execute: { fill: 'rgba(16, 185, 129, 0.15)', stroke: '#10b981', text: '#6ee7b7' }
+        };
+
+        let currentWorkflow = null;
+        let runningWorkflows = 12;
+        let actionsToday = 1847;
+
+        function loadPrompt(idx) {
+            const tpl = TEMPLATES[idx];
+            document.getElementById('promptInput').value = tpl.prompt;
+        }
+
+        function generateWorkflow() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) {
+                showToast('⚠️ Empty Prompt', 'Describe a workflow first', 'warning');
+                return;
+            }
+
+            // Find best match
+            let tpl = TEMPLATES.find(t => prompt.toLowerCase().includes(t.prompt.toLowerCase().substring(0, 30))) || TEMPLATES[0];
+            // If they typed something custom, default to template 0 but include their text
+            const matchedIdx = TEMPLATES.findIndex(t => t.prompt === tpl.prompt);
+            if (matchedIdx === -1 || !TEMPLATES.some(t => prompt.startsWith(t.prompt.substring(0, 40)))) {
+                tpl = TEMPLATES[0];
+            }
+            currentWorkflow = tpl;
+
+            const overlay = document.getElementById('processingOverlay');
+            const bar = document.getElementById('processingBar');
+            const stage = document.getElementById('processingStage');
+            overlay.classList.add('active');
+
+            const stages = [
+                'Parsing natural language...',
+                'Extracting entities & conditions...',
+                'Resolving connectors (banks, MMF, Slack)...',
+                'Building Temporal DSL...',
+                'Verifying determinism...',
+                'Generating audit hooks...',
+                'Workflow ready for approval.'
+            ];
+
+            let progress = 0;
+            let sIdx = 0;
+            const tick = setInterval(() => {
+                progress += Math.random() * 18 + 7;
+                if (progress > 100) progress = 100;
+                bar.style.width = progress + '%';
+                const ns = Math.floor((progress / 100) * stages.length);
+                if (ns !== sIdx && ns < stages.length) {
+                    sIdx = ns;
+                    stage.textContent = stages[ns];
+                }
+                if (progress >= 100) {
+                    clearInterval(tick);
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        renderDag(currentWorkflow);
+                        showApprovalPanel(currentWorkflow);
+                        addAudit('Workflow compiled', currentWorkflow.name, 'cyan');
+                    }, 350);
+                }
+            }, 90);
+        }
+
+        function renderDag(wf) {
+            document.getElementById('dagEmpty').style.display = 'none';
+            const svg = document.getElementById('dagSvg');
+            svg.style.display = 'block';
+            svg.innerHTML = '';
+
+            // Edges first
+            wf.edges.forEach(([from, to], i) => {
+                const a = wf.nodes.find(n => n.id === from);
+                const b = wf.nodes.find(n => n.id === to);
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const dx = (b.x - a.x) / 2;
+                const d = `M ${a.x + 60} ${a.y + 22} C ${a.x + 60 + dx} ${a.y + 22}, ${b.x - dx} ${b.y + 22}, ${b.x} ${b.y + 22}`;
+                path.setAttribute('d', d);
+                path.setAttribute('class', 'dag-edge');
+                path.id = `edge-${from}-${to}`;
+                svg.appendChild(path);
+            });
+
+            // Nodes
+            wf.nodes.forEach((node, i) => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', 'dag-node');
+                g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+                g.id = `node-${node.id}`;
+                g.style.opacity = '0';
+
+                const colors = COLOR_MAP[node.type];
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('width', '120');
+                rect.setAttribute('height', '44');
+                rect.setAttribute('rx', '8');
+                rect.setAttribute('fill', colors.fill);
+                rect.setAttribute('stroke', colors.stroke);
+                rect.setAttribute('stroke-width', '1.5');
+                g.appendChild(rect);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '60');
+                text.setAttribute('y', '27');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', colors.text);
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-family', 'Sora, sans-serif');
+                text.setAttribute('font-weight', '600');
+                text.textContent = node.label;
+                g.appendChild(text);
+
+                svg.appendChild(g);
+
+                setTimeout(() => {
+                    g.style.transition = 'opacity 0.4s';
+                    g.style.opacity = '1';
+                }, i * 120);
+            });
+        }
+
+        function showApprovalPanel(wf) {
+            const panel = document.getElementById('executionPanel');
+            panel.classList.add('show');
+            document.getElementById('execTitle').textContent = `${wf.name} — Awaiting Approval`;
+            document.getElementById('execStatus').textContent = 'PENDING APPROVAL';
+            document.getElementById('execStatus').className = 'exec-status';
+            document.getElementById('approveBtn').disabled = false;
+            document.getElementById('rejectBtn').disabled = false;
+            document.getElementById('execSpec').innerHTML = wf.spec;
+        }
+
+        function approveWorkflow() {
+            if (!currentWorkflow) return;
+            document.getElementById('approveBtn').disabled = true;
+            document.getElementById('rejectBtn').disabled = true;
+            document.getElementById('execStatus').textContent = 'EXECUTING';
+            document.getElementById('execStatus').className = 'exec-status running';
+            document.getElementById('execTitle').textContent = `${currentWorkflow.name} — Running`;
+
+            addAudit('Approved by user', `workflow=${currentWorkflow.name}`, 'emerald');
+            showToast('✅ Approved', 'Executing workflow', 'success');
+
+            // Step through nodes
+            const wf = currentWorkflow;
+            const order = wf.nodes;
+            let i = 0;
+            const step = () => {
+                if (i >= order.length) {
+                    document.getElementById('execStatus').textContent = 'COMPLETED';
+                    document.getElementById('execStatus').className = 'exec-status done';
+                    document.getElementById('execTitle').textContent = `${currentWorkflow.name} — Completed ✓`;
+                    addAudit('Workflow completed', `duration=${(order.length * 0.85).toFixed(1)}s`, 'emerald');
+                    runningWorkflows++;
+                    actionsToday += order.length;
+                    document.getElementById('workflowsRunning').textContent = runningWorkflows;
+                    document.getElementById('actionsToday').textContent = actionsToday.toLocaleString();
+                    showToast('🎉 Workflow Complete', `${order.length} steps executed`, 'success');
+                    return;
+                }
+                const node = order[i];
+                const g = document.getElementById(`node-${node.id}`);
+                g.classList.add('running');
+
+                // Activate incoming edge
+                if (i > 0) {
+                    const prev = order[i - 1];
+                    const edge = document.getElementById(`edge-${prev.id}-${node.id}`);
+                    if (edge) edge.classList.add('active');
+                }
+
+                addAudit(`Executing: ${node.label}`, `node=${node.id} type=${node.type}`, node.type === 'approval' ? 'amber' : 'cyan');
+
+                // Sometimes simulate an exception
+                if (Math.random() < 0.12 && node.type === 'decision') {
+                    setTimeout(() => {
+                        g.classList.remove('running');
+                        g.classList.add('exception');
+                        addAudit('Exception → Slack notification sent', `node=${node.id}`, 'amber');
+                        setTimeout(() => {
+                            g.classList.remove('exception');
+                            g.classList.add('done');
+                            i++;
+                            step();
+                        }, 700);
+                    }, 700);
+                } else {
+                    setTimeout(() => {
+                        g.classList.remove('running');
+                        g.classList.add('done');
+                        i++;
+                        step();
+                    }, 850);
+                }
+            };
+            step();
+        }
+
+        function rejectWorkflow() {
+            document.getElementById('approveBtn').disabled = true;
+            document.getElementById('rejectBtn').disabled = true;
+            document.getElementById('execStatus').textContent = 'REJECTED';
+            document.getElementById('execStatus').className = 'exec-status';
+            addAudit('Workflow rejected by user', `workflow=${currentWorkflow.name}`, 'amber');
+            showToast('✕ Rejected', 'Workflow discarded', 'warning');
+        }
+
+        function addAudit(msg, meta, color = '') {
+            const log = document.getElementById('auditLog');
+            // Clear empty state
+            if (log.children.length === 1 && log.firstChild.tagName !== 'DIV' || (log.firstChild && log.firstChild.style && log.firstChild.style.textAlign === 'center')) {
+                log.innerHTML = '';
+            }
+            if (log.querySelector('div[style*="text-align: center"]')) {
+                log.innerHTML = '';
+            }
+
+            const entry = document.createElement('div');
+            entry.className = `audit-entry ${color}`;
+            const now = new Date();
+            const ts = now.toTimeString().substring(0, 8);
+            entry.innerHTML = `
+                <div class="audit-msg">${msg}</div>
+                <div class="audit-meta">${ts} · ${meta}</div>
+            `;
+            log.insertBefore(entry, log.firstChild);
+
+            while (log.children.length > 25) {
+                log.removeChild(log.lastChild);
+            }
+            document.getElementById('auditCount').textContent = `${log.children.length} events`;
+        }
+
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = type === 'warning' ? '⚠️' : type === 'error' ? '❌' : '✅';
+            toast.querySelector('.toast-icon').textContent = icon;
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3200);
+        }
+
+        // Subtle stat ticking
+        setInterval(() => {
+            if (Math.random() < 0.5) {
+                actionsToday += Math.floor(Math.random() * 3) + 1;
+                document.getElementById('actionsToday').textContent = actionsToday.toLocaleString();
+            }
+        }, 4000);
+    </script>
+</body>
+</html>

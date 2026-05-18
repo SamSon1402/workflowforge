@@ -1,0 +1,113 @@
+// WorkflowForge data model
+// Optimised for: deterministic re-execution, FCA-grade audit trail,
+// and human-in-the-loop approval flows.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// A compiled workflow definition. The `spec` JSONB column holds the
+// validated WorkflowSpec DSL (see src/lib/types.ts). We keep the original
+// natural-language `prompt` for auditability — every workflow can be
+// traced back to the human intent that produced it.
+model Workflow {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  prompt      String         @db.Text
+  spec        Json
+  status      WorkflowStatus @default(DRAFT)
+  createdById String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  runs        WorkflowRun[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// One execution of a workflow. We mirror Temporal's run id in
+// `temporalRunId` so the audit trail in our DB cross-references with
+// Temporal's event history (which is the system of record for replay).
+model WorkflowRun {
+  id            String    @id @default(cuid())
+  workflowId    String
+  workflow      Workflow  @relation(fields: [workflowId], references: [id])
+
+  temporalRunId String    @unique
+  status        RunStatus @default(RUNNING)
+
+  triggeredBy   String    // user id, "cron", or event name
+  startedAt     DateTime  @default(now())
+  completedAt   DateTime?
+  result        Json?     // workflow output context on COMPLETED
+
+  events    AuditEvent[]
+  approvals Approval[]
+
+  @@index([workflowId, startedAt])
+  @@index([status])
+}
+
+// Human-in-the-loop approval gates. One row per approval node hit.
+// The Temporal workflow blocks on a signal (`approvalSignal`) keyed by
+// nodeId, and the /approve API route writes here AND signals Temporal.
+model Approval {
+  id         String            @id @default(cuid())
+  runId      String
+  run        WorkflowRun       @relation(fields: [runId], references: [id])
+
+  nodeId     String            // DAG node id from the spec
+  role       String            // e.g. "CFO", "Treasurer"
+  approverId String?           // resolved user when decided
+  decision   ApprovalDecision? // null = pending
+  decidedAt  DateTime?
+  reason     String?
+
+  createdAt  DateTime          @default(now())
+
+  @@index([runId, decision])
+}
+
+// Per-step audit log. Every step start, step end, exception, and
+// approval is logged here for downstream compliance (FCA / ISO 27001).
+model AuditEvent {
+  id        String      @id @default(cuid())
+  runId     String
+  run       WorkflowRun @relation(fields: [runId], references: [id])
+
+  nodeId    String?
+  eventType String      // RUN_STARTED, STEP_START, STEP_DONE, STEP_FAILED, REJECTED, RUN_COMPLETED
+  payload   Json
+  timestamp DateTime    @default(now())
+
+  @@index([runId, timestamp])
+  @@index([eventType])
+}
+
+enum WorkflowStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum RunStatus {
+  RUNNING
+  PENDING_APPROVAL
+  COMPLETED
+  FAILED
+  REJECTED
+  TIMED_OUT
+}
+
+enum ApprovalDecision {
+  APPROVED
+  REJECTED
+}
