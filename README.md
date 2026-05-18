@@ -140,7 +140,7 @@ curl http://localhost:3000/api/workflows/clxxx.../runs
 
 ---
 
-## What's not in this demo
+## What's not in this Project
 
 This is a focused slice — the parts that show the engineering judgement, not a complete product. Out of scope here but obvious next steps:
 
