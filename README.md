@@ -147,10 +147,9 @@ This is a focused slice — the parts that show the engineering judgement, not a
 - **Auth.** No JWT / session middleware on the API routes. In production these would sit behind a `withAuth(orgId, roles)` wrapper and `createdById` would come from the session, not the request body.
 - **Real Plaid integration.** `banks.ts` returns hardcoded balances. The shape mirrors `AccountBase` from `plaid-node` so wiring it up is a small lift.
 - **Cron parsing.** `isCronDue` is a stub — production would use `croner` for tz-correct evaluation.
-- **Frontend.** The interactive demo at [samson1402.github.io](https://samson1402.github.io) is the UI counterpart.
 - **Tests.** Unit tests on `compiler.ts` (golden specs) and the interpreter (graph correctness) are the first thing I'd add.
 - **Observability.** OpenTelemetry tracing across the Inngest → Temporal → activity boundaries — Temporal's `interceptor` API makes this clean.
 
 ---
 
-Built by Sameer M · 2026 · [samson1402.github.io](https://samson1402.github.io)
+Built by Sameer M · 2026 · 
